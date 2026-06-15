@@ -2,20 +2,27 @@ CC     = mpicc
 CFLAGS = -O2 -fopenmp -Wall -Wextra
 NP     = 8
 
-.PHONY: clean
+DIR  := $(word 1,$(MAKECMDGOALS))
+FILE := $(word 2,$(MAKECMDGOALS))
 
-PATTERN := $(MAKECMDGOALS)
+.PHONY: clean run $(DIR) $(FILE)
 
 .DEFAULT_GOAL := _noargs
 
 _noargs:
-	@echo "Usage: make <pattern>"
+	@echo "Usage: make <directory_to_search> <file_to_search>"
 
-$(PATTERN): search
-	@mpiexec -n $(NP) --oversubscribe ./search "$(PATTERN)"
+$(DIR): search
+	@mpiexec -n $(NP) --oversubscribe ./search "$(DIR)" "$(FILE)"
+
+$(FILE):
+	@:
 
 search: main.c
-	$(CC) $(CFLAGS) main.c -o search
+	$(CC) $(CFLAGS) main.c -o search -lpthread
 
 clean:
 	rm -f search
+
+%:
+	@:
